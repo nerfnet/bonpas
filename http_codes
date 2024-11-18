@@ -1,0 +1,81 @@
+1xx Informational
+These codes indicate a provisional response, meaning the request was received and is being processed.
+
+100 Continue: The server has received the request headers and the client should proceed to send the request body.
+101 Switching Protocols: The requester has asked the server to switch protocols, and the server agrees.
+102 Processing (WebDAV): The server has received the request and is processing it but has no response yet.
+103 Early Hints: Used to return some response headers before final HTTP message.
+
+2xx Success
+These codes indicate the request was successfully received, understood, and accepted.
+
+200 OK: The request was successful.
+201 Created: The request was successful, and a new resource was created.
+202 Accepted: The request has been accepted for processing, but the processing is not complete.
+203 Non-Authoritative Information: The server successfully processed the request but is returning information from another source.
+204 No Content: The server successfully processed the request, but no content is being returned.
+205 Reset Content: The server successfully processed the request, but the client should reset its view.
+206 Partial Content: The server is delivering only part of the resource due to a range request.
+207 Multi-Status (WebDAV): The message body contains multiple status codes for multiple operations.
+208 Already Reported (WebDAV): The members of a DAV binding have already been enumerated in a previous response.
+226 IM Used: The server has fulfilled a request for the resource, and the response is a representation of the result of one or more instance manipulations.
+
+3xx Redirection
+These codes indicate the client must take additional action to complete the request.
+
+300 Multiple Choices: The request has more than one possible response.
+301 Moved Permanently: The resource has been moved permanently to a new URL.
+302 Found: The resource resides temporarily under a different URL.
+303 See Other: The response can be found under another URL using a GET method.
+304 Not Modified: The resource has not been modified since the last request.
+305 Use Proxy: The requested resource must be accessed through the proxy specified.
+307 Temporary Redirect: The resource resides temporarily at another URI, and the request method should not change.
+308 Permanent Redirect: The resource is now permanently located at another URI, and the request method should not change.
+
+4xx Client Errors
+These codes indicate the client made an error in the request.
+
+400 Bad Request: The server could not understand the request due to invalid syntax.
+401 Unauthorized: The client must authenticate itself to get the requested response.
+402 Payment Required: Reserved for future use (used in some APIs for payment-related functionality).
+403 Forbidden: The client does not have permission to access the resource.
+404 Not Found: The server could not find the requested resource.
+405 Method Not Allowed: The method specified in the request is not allowed for the resource.
+406 Not Acceptable: The server cannot produce a response matching the Accept headers sent in the request.
+407 Proxy Authentication Required: The client must authenticate with a proxy server.
+408 Request Timeout: The server timed out waiting for the request.
+409 Conflict: The request conflicts with the current state of the resource.
+410 Gone: The resource is no longer available and will not be available again.
+411 Length Required: The server requires the request to specify a valid Content-Length header.
+412 Precondition Failed: One or more conditions in the request headers were not met.
+413 Payload Too Large: The request payload is too large for the server to process.
+414 URI Too Long: The URI requested by the client is too long.
+415 Unsupported Media Type: The media type of the request is not supported by the server.
+416 Range Not Satisfiable: The range specified in the request cannot be fulfilled.
+417 Expectation Failed: The expectation given in the request's Expect header could not be met.
+418 I'm a Teapot: (RFC 2324) A playful code from the "Hyper Text Coffee Pot Control Protocol."
+421 Misdirected Request: The request was directed at a server that is unable to produce a response.
+422 Unprocessable Entity (WebDAV): The request was well-formed but could not be processed due to semantic errors.
+423 Locked (WebDAV): The resource is locked.
+424 Failed Dependency (WebDAV): The request failed because of a failure in a previous request.
+425 Too Early: Indicates that the server is unwilling to process the request because it might be replayed.
+426 Upgrade Required: The client should switch to a different protocol.
+428 Precondition Required: The server requires the request to be conditional.
+429 Too Many Requests: The client has sent too many requests in a given amount of time.
+431 Request Header Fields Too Large: The server is unwilling to process the request because its headers are too large.
+451 Unavailable For Legal Reasons: The resource is unavailable due to legal reasons.
+
+5xx Server Errors
+These codes indicate that the server failed to fulfill a valid request.
+
+500 Internal Server Error: The server encountered a generic error.
+501 Not Implemented: The server does not support the functionality required to fulfill the request.
+502 Bad Gateway: The server received an invalid response from an upstream server.
+503 Service Unavailable: The server is not ready to handle the request (e.g., overloaded or down for maintenance).
+504 Gateway Timeout: The server did not receive a timely response from an upstream server.
+505 HTTP Version Not Supported: The server does not support the HTTP version used in the request.
+506 Variant Also Negotiates: The server has an internal configuration error.
+507 Insufficient Storage (WebDAV): The server is unable to store the representation needed to complete the request.
+508 Loop Detected (WebDAV): The server detected an infinite loop while processing the request.
+510 Not Extended: Further extensions to the request are required for the server to fulfill it.
+511 Network Authentication Required: The client needs to authenticate to gain network access.
