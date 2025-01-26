@@ -6,15 +6,48 @@
       <option name="ignoredModules">
         <list>
           <option value="backend" />
+          <option value="dataserver" />
+          <option value="dataserver" />
+          <option value="dataserver" />
+          <option value="framework" />
+          <option value="framework" />
+          <option value="nd-serv" />
+          <option value="nd-serv" />
+          <option value="nd-serv" />
+          <option value="datastore" />
+          <option value="datastore" />
+          <option value="datastore" />
         </list>
       </option>
       <option name="ignoredPackages">
         <list>
           <option value="org.xmlunit:xmlunit-core:2.9.1" />
+          <option value="ch.qos.logback:logback-core:1.5.11" />
+          <option value="org.xmlunit:xmlunit-core:2.9.1" />
+          <option value="org.springframework:spring-webmvc:6.1.14" />
+          <option value="ch.qos.logback:logback-core:1.5.11" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.31" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.31" />
+          <option value="ch.qos.logback:logback-core:1.5.11" />
+          <option value="org.xmlunit:xmlunit-core:2.9.1" />
+          <option value="org.xmlunit:xmlunit-core:2.9.1" />
+          <option value="ch.qos.logback:logback-core:1.5.11" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.31" />
         </list>
       </option>
       <option name="ignoredReasons">
         <list>
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
           <option value="Not exploitable" />
         </list>
       </option>

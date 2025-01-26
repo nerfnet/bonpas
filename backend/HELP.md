@@ -1,1 +1,0 @@
-curl -X POST "http://localhost:8080/sync" -H "Content-Type: application/json" -d "{\"userId\":\"giovanni\", \"data\":\"cookies123\", \"checksum\":\"f721d2e0443eaf4ba5ee446cfd939e64\"}'
