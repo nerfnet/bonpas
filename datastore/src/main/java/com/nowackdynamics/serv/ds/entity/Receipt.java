@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Receipt {
 
     @Id
-    private UUID receiptId;
+    private UUID id;
 
     private UUID claimedBy;
 

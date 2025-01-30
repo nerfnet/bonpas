@@ -6,6 +6,7 @@ import com.nowackdynamics.serv.framework.response.BaseResponse;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import com.nowackdynamics.serv.framework.response.external.user.GenericSuccessResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +28,19 @@ public class AccountService {
      * @return HTTP response containing user id if success.
      */
     public ResponseEntity<? extends BaseResponse> handleCreate(UUID userId, String email, String pin) {
-        if (repository.findById(userId).isPresent()) {
+        Optional<Account> optional = repository.findById(userId);
+
+        if (optional.isPresent()) {
             return ErrorResponse.create("Account already exists");
+        } else {
+            if(repository.findByEmail(email.toLowerCase()).isPresent()) {
+                return ErrorResponse.create("Email already in use");
+            }
         }
 
         Account account = new Account();
-        account.setUserId(userId);
-        account.setEmail(email);
+        account.setId(userId);
+        account.setEmail(email.toLowerCase());
         account.setPin(pin);
 
         repository.save(account);

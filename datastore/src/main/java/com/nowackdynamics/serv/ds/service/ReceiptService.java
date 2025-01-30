@@ -4,16 +4,14 @@ import com.nowackdynamics.serv.ds.entity.Receipt;
 import com.nowackdynamics.serv.ds.repository.ReceiptRepository;
 import com.nowackdynamics.serv.framework.response.BaseResponse;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
+import com.nowackdynamics.serv.framework.response.external.user.ClaimSuccessResponse;
 import com.nowackdynamics.serv.framework.response.external.user.GenericSuccessResponse;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ReceiptService {
@@ -34,13 +32,26 @@ public class ReceiptService {
             return ErrorResponse.create("Receipt with specified ID already exists");
         }
 
-        Receipt receipt = new Receipt();
-        receipt.setReceiptId(receiptId);
-        receipt.setData(receiptData);
-        receipt.setAnalyticsInfo(Objects.requireNonNullElseGet(analyticsInfo, ArrayList::new));
+        byte[] data;
 
-        repository.save(receipt);
-        return GenericSuccessResponse.create(receiptId);
+        try {
+            data = Base64.getDecoder().decode(receiptData);
+        } catch (IllegalArgumentException e) {
+            return ErrorResponse.create("Incorrect receipt data encoding");
+        }
+
+        // D R F
+        if(data[0] == 0x44 && data[1] == 0x52 && data[2] == 0x46) {
+            Receipt receipt = new Receipt();
+            receipt.setId(receiptId);
+            receipt.setData(receiptData);
+            receipt.setAnalyticsInfo(Objects.requireNonNullElseGet(analyticsInfo, ArrayList::new));
+
+            repository.save(receipt);
+            return GenericSuccessResponse.create(receiptId);
+        }
+
+        return ErrorResponse.create("Receipt data is not in DRF");
     }
 
     /**
@@ -59,7 +70,7 @@ public class ReceiptService {
             }
             receipt.setClaimedBy(userId);
             repository.save(receipt);
-            return GenericSuccessResponse.create(receiptId);
+            return ClaimSuccessResponse.create(receiptId, receipt.getData());
         }
         return ErrorResponse.create("Receipt does not exist");
     }

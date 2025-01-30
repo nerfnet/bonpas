@@ -16,10 +16,7 @@ public class ClaimSuccessResponse extends SuccessResponse {
     @NotNull
     private UUID receiptId;
 
-    @NotNull
-    private String data;
-
-    public ResponseEntity<ClaimSuccessResponse> create(UUID receiptId, String data) {
+    public static ResponseEntity<ClaimSuccessResponse> create(UUID receiptId, String data) {
         ClaimSuccessResponse claimSuccessResponse = new ClaimSuccessResponse();
         claimSuccessResponse.setData(data);
         claimSuccessResponse.setReceiptId(receiptId);

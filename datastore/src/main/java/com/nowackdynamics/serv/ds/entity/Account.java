@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Account {
 
     @Id
-    private UUID userId;
+    private UUID id;
 
     private String email;
 

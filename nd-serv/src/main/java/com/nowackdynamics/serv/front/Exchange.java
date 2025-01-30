@@ -36,8 +36,8 @@ public class Exchange {
         try {
             response = restTemplate.exchange(datastoreAddress + endpoint, HttpMethod.POST, forwardingRequest, BaseResponse.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RestClientException(e.getLocalizedMessage());
+            System.out.println("big booty error");
+            return ErrorResponse.create("error");
         }
         return response;
     }

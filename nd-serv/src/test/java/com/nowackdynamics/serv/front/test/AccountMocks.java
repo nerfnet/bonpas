@@ -26,7 +26,7 @@ public class AccountMocks {
         Map<String, Object> data = new HashMap<>();
         data.put("userId", UUID.randomUUID());
         data.put("email", "giovanni@nowackdynamics.com");
-        data.put("pin", "01234567");
+        data.put("pin", "012345");
 
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(data);
@@ -40,7 +40,7 @@ public class AccountMocks {
     @Test
     void test_UpdatePin() throws Exception {
         Map<String, Object> data = new HashMap<>();
-        data.put("userId", UUID.randomUUID());
+        data.put("userId", UUID.fromString("1900f674-3273-4004-a1a0-3a6a04294f42"));
         data.put("currentPin", "01234567");
         data.put("newPin", "76543210");
 
@@ -56,8 +56,8 @@ public class AccountMocks {
     @Test
     void test_UpdateEmail() throws Exception {
         Map<String, Object> data = new HashMap<>();
-        data.put("userId", UUID.randomUUID());
-        data.put("pin", "01234567");
+        data.put("userId", UUID.fromString("1900f674-3273-4004-a1a0-3a6a04294f42"));
+        data.put("pin", "76543210");
         data.put("newEmail", "developer@nowackdynamics.com");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -66,7 +66,7 @@ public class AccountMocks {
         mock.perform(MockMvcRequestBuilders.post("/api/account/updateemail")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 }
