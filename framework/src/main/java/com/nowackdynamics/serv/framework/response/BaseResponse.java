@@ -6,8 +6,7 @@ import lombok.Data;
 @Data
 public class BaseResponse {
 
-    private int httpCode;
-
+    private int httpCode, ndsCode;
     @Nullable
     private String data;
 }

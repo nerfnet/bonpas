@@ -14,10 +14,11 @@ public class ErrorResponse extends BaseResponse {
     @NotNull
     private String reason;
 
-    public static ResponseEntity<ErrorResponse> create(String reason) {
+    public static ResponseEntity<ErrorResponse> create(String reason, int errorCode) {
         ErrorResponse response = new ErrorResponse();
         response.setHttpCode(400);
         response.setReason(reason);
+        response.setNdsCode(errorCode);
         return ResponseEntity
                 .status(response.getHttpCode())
                 .contentType(MediaType.APPLICATION_JSON)

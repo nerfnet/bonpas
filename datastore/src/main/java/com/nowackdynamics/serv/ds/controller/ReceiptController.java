@@ -4,6 +4,7 @@ import com.nowackdynamics.serv.ds.Secure;
 import com.nowackdynamics.serv.ds.service.ReceiptService;
 import com.nowackdynamics.serv.framework.request.external.terminal.NewReceiptRequest;
 import com.nowackdynamics.serv.framework.request.external.user.ClaimRequest;
+import com.nowackdynamics.serv.framework.response.ErrorCodes;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class ReceiptController {
             @Validated @RequestBody NewReceiptRequest newReceiptRequest,
             @RequestHeader(value = "Authorization") String securityKey) {
         if (!secure.checkKey(securityKey)) {
-            return ErrorResponse.create("Secure check error");
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
         }
 
         UUID receiptId = newReceiptRequest.getReceiptId();
@@ -46,7 +47,7 @@ public class ReceiptController {
             @Validated @RequestBody ClaimRequest claimRequest,
             @RequestHeader(value = "Authorization") String securityKey) {
         if (!secure.checkKey(securityKey)) {
-            return ErrorResponse.create("Secure check error");
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
         }
 
         UUID receiptId = claimRequest.getReceiptId();

@@ -3,6 +3,7 @@ package com.nowackdynamics.serv.ds.service;
 import com.nowackdynamics.serv.ds.entity.Receipt;
 import com.nowackdynamics.serv.ds.repository.ReceiptRepository;
 import com.nowackdynamics.serv.framework.response.BaseResponse;
+import com.nowackdynamics.serv.framework.response.ErrorCodes;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import com.nowackdynamics.serv.framework.response.external.user.ClaimSuccessResponse;
 import com.nowackdynamics.serv.framework.response.external.user.GenericSuccessResponse;
@@ -29,7 +30,7 @@ public class ReceiptService {
      */
     public ResponseEntity<? extends BaseResponse> handleNew(UUID receiptId, String receiptData, @Nullable ArrayList<String> analyticsInfo) {
         if (repository.findById(receiptId).isPresent()) {
-            return ErrorResponse.create("Receipt with specified ID already exists");
+            return ErrorResponse.create("Receipt with specified ID already exists", ErrorCodes.RECEIPT_EXISTS);
         }
 
         byte[] data;
@@ -37,7 +38,7 @@ public class ReceiptService {
         try {
             data = Base64.getDecoder().decode(receiptData);
         } catch (IllegalArgumentException e) {
-            return ErrorResponse.create("Incorrect receipt data encoding");
+            return ErrorResponse.create("Incorrect receipt data encoding", ErrorCodes.RECEIPT_FORMAT_B64);
         }
 
         // D R F
@@ -51,7 +52,7 @@ public class ReceiptService {
             return GenericSuccessResponse.create(receiptId);
         }
 
-        return ErrorResponse.create("Receipt data is not in DRF");
+        return ErrorResponse.create("Receipt data is not in DRF", ErrorCodes.RECEIPT_FORMAT_DRP);
     }
 
     /**
@@ -66,12 +67,12 @@ public class ReceiptService {
         if (optional.isPresent()) {
             Receipt receipt = optional.get();
             if (receipt.getClaimedBy() != null) {
-                return ErrorResponse.create("Receipt already claimed");
+                return ErrorResponse.create("Receipt already claimed", ErrorCodes.RECEIPT_CLAIMED);
             }
             receipt.setClaimedBy(userId);
             repository.save(receipt);
             return ClaimSuccessResponse.create(receiptId, receipt.getData());
         }
-        return ErrorResponse.create("Receipt does not exist");
+        return ErrorResponse.create("Receipt does not exist", ErrorCodes.RECEIPT_INVALID);
     }
 }

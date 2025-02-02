@@ -5,6 +5,7 @@ import com.nowackdynamics.serv.ds.service.AccountService;
 import com.nowackdynamics.serv.framework.request.external.user.CreateAccountRequest;
 import com.nowackdynamics.serv.framework.request.external.user.UpdateEmailRequest;
 import com.nowackdynamics.serv.framework.request.external.user.UpdatePinRequest;
+import com.nowackdynamics.serv.framework.response.ErrorCodes;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class AccountController {
             @Validated @RequestBody CreateAccountRequest createRequest,
             @RequestHeader(value = "Authorization") String securityKey) {
         if (!secure.checkKey(securityKey)) {
-            return ErrorResponse.create("Secure check error");
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
         }
         UUID userId = createRequest.getUserId();
         String email = createRequest.getEmail();
@@ -44,7 +45,7 @@ public class AccountController {
     public ResponseEntity<?> updatePin(@Validated @RequestBody UpdatePinRequest updatePinRequest,
                                        @RequestHeader(value = "Authorization") String securityKey) {
         if (!secure.checkKey(securityKey)) {
-            return ErrorResponse.create("Secure check error");
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
         }
         UUID userId = updatePinRequest.getUserId();
         String currentPin = updatePinRequest.getCurrentPin();
@@ -60,7 +61,7 @@ public class AccountController {
     public ResponseEntity<?> updateEmail(@Validated @RequestBody UpdateEmailRequest updateEmailRequest,
                                          @RequestHeader(value = "Authorization") String securityKey) {
         if (!secure.checkKey(securityKey)) {
-            return ErrorResponse.create("Secure check error");
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
         }
         UUID userId = updateEmailRequest.getUserId();
         String pin = updateEmailRequest.getPin();

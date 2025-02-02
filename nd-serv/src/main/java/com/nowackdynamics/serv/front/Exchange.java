@@ -2,7 +2,6 @@ package com.nowackdynamics.serv.front;
 
 import com.nowackdynamics.serv.framework.request.BaseRequest;
 import com.nowackdynamics.serv.framework.response.BaseResponse;
-import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -22,7 +20,7 @@ public class Exchange {
     @Value("${server.datastore_address}")
     private String datastoreAddress;
 
-    public ResponseEntity<? extends BaseResponse> exchangeSync(String endpoint, BaseRequest request) throws RestClientException {
+    public ResponseEntity<? extends BaseResponse> exchangeSync(String endpoint, BaseRequest request) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<? extends BaseRequest> forwardingRequest;
@@ -33,12 +31,7 @@ public class Exchange {
 
         forwardingRequest = new HttpEntity<>(request, httpHeaders);
 
-        try {
-            response = restTemplate.exchange(datastoreAddress + endpoint, HttpMethod.POST, forwardingRequest, BaseResponse.class);
-        } catch (Exception e) {
-            System.out.println("big booty error");
-            return ErrorResponse.create("error");
-        }
+        response = restTemplate.exchange(datastoreAddress + endpoint, HttpMethod.POST, forwardingRequest, BaseResponse.class);
         return response;
     }
 

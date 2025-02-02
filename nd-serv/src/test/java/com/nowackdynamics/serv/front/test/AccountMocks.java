@@ -41,8 +41,8 @@ public class AccountMocks {
     void test_UpdatePin() throws Exception {
         Map<String, Object> data = new HashMap<>();
         data.put("userId", UUID.fromString("1900f674-3273-4004-a1a0-3a6a04294f42"));
-        data.put("currentPin", "01234567");
-        data.put("newPin", "76543210");
+        data.put("currentPin", "014567");
+        data.put("newPin", "765210");
 
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(data);

@@ -3,6 +3,7 @@ package com.nowackdynamics.serv.ds.service;
 import com.nowackdynamics.serv.ds.entity.Account;
 import com.nowackdynamics.serv.ds.repository.AccountRepository;
 import com.nowackdynamics.serv.framework.response.BaseResponse;
+import com.nowackdynamics.serv.framework.response.ErrorCodes;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import com.nowackdynamics.serv.framework.response.external.user.GenericSuccessResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,10 @@ public class AccountService {
         Optional<Account> optional = repository.findById(userId);
 
         if (optional.isPresent()) {
-            return ErrorResponse.create("Account already exists");
+            return ErrorResponse.create("Account already exists", ErrorCodes.ACCOUNT_EXISTS);
         } else {
             if(repository.findByEmail(email.toLowerCase()).isPresent()) {
-                return ErrorResponse.create("Email already in use");
+                return ErrorResponse.create("Email already in use", ErrorCodes.EMAIL_USED);
             }
         }
 
@@ -63,12 +64,12 @@ public class AccountService {
             if (account.getPin().equals(currentPin)) {
                 account.setPin(newPin);
             } else {
-                return ErrorResponse.create("Security check failed");
+                return ErrorResponse.create("Security check failed", ErrorCodes.PIN_INVALID);
             }
             repository.save(account);
             return GenericSuccessResponse.create(userId);
         }
-        return ErrorResponse.create("Account not registered");
+        return ErrorResponse.create("Account not registered", ErrorCodes.ACCOUNT_INVALID);
     }
 
     /**
@@ -85,15 +86,15 @@ public class AccountService {
             Account account = optional.get();
             if (account.getPin().equals(currentPin)) {
                 if (account.getEmail().equals(newEmail)) {
-                    return ErrorResponse.create("New email is the same");
+                    return ErrorResponse.create("New email is the same", ErrorCodes.EMAIL_SAME);
                 }
                 account.setEmail(newEmail);
             } else {
-                return ErrorResponse.create("Security check failed");
+                return ErrorResponse.create("Security check failed", ErrorCodes.PIN_INVALID);
             }
             repository.save(account);
             return GenericSuccessResponse.create(userId);
         }
-        return ErrorResponse.create("Account not registered");
+        return ErrorResponse.create("Account not registered", ErrorCodes.ACCOUNT_INVALID);
     }
 }
