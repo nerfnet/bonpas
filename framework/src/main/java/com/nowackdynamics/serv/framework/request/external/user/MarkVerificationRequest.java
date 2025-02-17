@@ -3,25 +3,14 @@ package com.nowackdynamics.serv.framework.request.external.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CreateAccountRequest extends UserRequest {
+public class MarkVerificationRequest extends UserRequest {
 
     @NotNull
     @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Invalid email")
-    private String email;
-
-    @Size(min = 60, max = 60, message = "Invalid PIN hash length")
-    @Pattern(
-            regexp = "^\\$2[ayb]\\$\\d{2}\\$[./A-Za-z0-9]{53}$",
-            message = "Invalid PIN hash"
-    )
-    private String pin;
-
-    @NotNull
-    private String salt;
+    private String email; // Can be omitted from the actual request
 }

@@ -2,9 +2,7 @@ package com.nowackdynamics.serv.ds.controller;
 
 import com.nowackdynamics.serv.ds.Secure;
 import com.nowackdynamics.serv.ds.service.AccountService;
-import com.nowackdynamics.serv.framework.request.external.user.CreateAccountRequest;
-import com.nowackdynamics.serv.framework.request.external.user.UpdateEmailRequest;
-import com.nowackdynamics.serv.framework.request.external.user.UpdatePinRequest;
+import com.nowackdynamics.serv.framework.request.external.user.*;
 import com.nowackdynamics.serv.framework.response.ErrorCodes;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +32,29 @@ public class AccountController {
         UUID userId = createRequest.getUserId();
         String email = createRequest.getEmail();
         String pin = createRequest.getPin();
+        String salt = createRequest.getSalt();
         return accountService.handleCreate(
                 userId,
                 email,
-                pin
+                pin,
+                salt
+        );
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> delete(
+            @Validated @RequestBody DeleteDataRequest deleteRequest,
+            @RequestHeader(value = "Authorization") String securityKey) {
+        if (!secure.checkKey(securityKey)) {
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
+        }
+        UUID userId = deleteRequest.getUserId();
+        String pin = deleteRequest.getPin();
+        boolean fullErasure = deleteRequest.isFullErasure();
+        return accountService.handleDelete(
+                userId,
+                pin,
+                fullErasure
         );
     }
 
@@ -50,10 +67,12 @@ public class AccountController {
         UUID userId = updatePinRequest.getUserId();
         String currentPin = updatePinRequest.getCurrentPin();
         String newPin = updatePinRequest.getNewPin();
+        String newSalt = updatePinRequest.getNewSalt();
         return accountService.handleUpdatePin(
                 userId,
                 currentPin,
-                newPin
+                newPin,
+                newSalt
         );
     }
 
@@ -70,6 +89,34 @@ public class AccountController {
                 userId,
                 pin,
                 newEmail
+        );
+    }
+
+    @PostMapping("/verification")
+    public ResponseEntity<?> verifyEmail(
+            @Validated @RequestBody VerifyEmailRequest verifyEmailRequest,
+            @RequestHeader(value = "Authorization") String securityKey) {
+        if (!secure.checkKey(securityKey)) {
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
+        }
+        UUID userId = verifyEmailRequest.getUserId();
+        String code = verifyEmailRequest.getVerificationCode();
+        return accountService.handleVerifyEmail(
+                userId,
+                code
+        );
+    }
+
+    @PostMapping("/verification/mark")
+    public ResponseEntity<?> markEmailForVerification(
+            @Validated @RequestBody MarkVerificationRequest markVerificationRequest,
+            @RequestHeader(value = "Authorization") String securityKey) {
+        if (!secure.checkKey(securityKey)) {
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
+        }
+        UUID userId = markVerificationRequest.getUserId();
+        return accountService.handleMarkEmailPending(
+                userId
         );
     }
 }

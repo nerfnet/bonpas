@@ -1,8 +1,6 @@
 package com.nowackdynamics.serv.front.controller;
 
-import com.nowackdynamics.serv.framework.request.external.user.CreateAccountRequest;
-import com.nowackdynamics.serv.framework.request.external.user.UpdateEmailRequest;
-import com.nowackdynamics.serv.framework.request.external.user.UpdatePinRequest;
+import com.nowackdynamics.serv.framework.request.external.user.*;
 import com.nowackdynamics.serv.framework.response.BaseResponse;
 import com.nowackdynamics.serv.front.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +27,19 @@ public class AccountController {
         return response;
     }
 
+    @PostMapping("/delete")
+    public ResponseEntity<? extends BaseResponse> delete(@Validated @RequestBody DeleteDataRequest deleteDataRequest) {
+        ResponseEntity<? extends BaseResponse> response;
+        response = exchange.exchangeSync("/api/account/delete", deleteDataRequest);
+
+        return response;
+    }
+
     @PostMapping("/updatepin")
     public ResponseEntity<?> updatePin(@Validated @RequestBody UpdatePinRequest updatePinRequest) {
         ResponseEntity<? extends BaseResponse> response;
 
-
         response = exchange.exchangeSync("/api/account/updatepin", updatePinRequest);
-
 
         return response;
     }
@@ -44,9 +48,25 @@ public class AccountController {
     public ResponseEntity<?> updateEmail(@Validated @RequestBody UpdateEmailRequest updateEmailRequest) {
         ResponseEntity<? extends BaseResponse> response;
 
-
         response = exchange.exchangeSync("/api/account/updateemail", updateEmailRequest);
 
+        return response;
+    }
+
+    @PostMapping("/verification")
+    public ResponseEntity<?> verifyEmail(@Validated @RequestBody VerifyEmailRequest verifyEmailRequest) {
+        ResponseEntity<? extends BaseResponse> response;
+
+        response = exchange.exchangeSync("/api/account/verification", verifyEmailRequest);
+
+        return response;
+    }
+
+    @PostMapping("/verification/mark")
+    public ResponseEntity<?> markEmailForVerification(@Validated @RequestBody MarkVerificationRequest markVerificationRequest) {
+        ResponseEntity<? extends BaseResponse> response;
+
+        response = exchange.exchangeSync("/api/account/verification", markVerificationRequest);
 
         return response;
     }

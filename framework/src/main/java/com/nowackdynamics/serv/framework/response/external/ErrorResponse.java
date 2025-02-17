@@ -1,6 +1,7 @@
 package com.nowackdynamics.serv.framework.response.external;
 
 import com.nowackdynamics.serv.framework.response.BaseResponse;
+import com.nowackdynamics.serv.framework.response.ResponseType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,6 +17,7 @@ public class ErrorResponse extends BaseResponse {
 
     public static ResponseEntity<ErrorResponse> create(String reason, int errorCode) {
         ErrorResponse response = new ErrorResponse();
+        response.setResponseType(ResponseType.ERROR);
         response.setHttpCode(400);
         response.setReason(reason);
         response.setNdsCode(errorCode);
