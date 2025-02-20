@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 @EqualsAndHashCode(callSuper = true)
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 public class TerminalRequest extends BaseRequest {
 
     @Nullable
-    private ArrayList<String> analyticsInfo;
+    private Map<String, Object> analyticsInfo;
 
     public TerminalRequest() {
         setSource(Source.TERMINAL);

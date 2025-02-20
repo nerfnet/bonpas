@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -34,7 +35,7 @@ public class ReceiptController {
 
         UUID receiptId = newReceiptRequest.getReceiptId();
         String receiptData = newReceiptRequest.getReceiptData();
-        ArrayList<String> analyticsInfo = newReceiptRequest.getAnalyticsInfo();
+        Map<String, Object> analyticsInfo = newReceiptRequest.getAnalyticsInfo();
         return receiptService.handleNew(
                 receiptId,
                 receiptData,

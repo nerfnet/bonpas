@@ -14,11 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AccountService {
@@ -31,6 +34,12 @@ public class AccountService {
 
     @Autowired
     private ReceiptRepository receiptRepository;
+
+    public AccountService() {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            pendingEmailVerifications.entrySet().removeIf(entry -> entry.getValue().expired());
+        }, 1, 1, TimeUnit.MINUTES);
+    }
 
     /**
      * Marks a user's email as pending for verification.
@@ -49,6 +58,10 @@ public class AccountService {
             VerificationToken verificationToken = new VerificationToken();
             verificationToken.generationTime = LocalDateTime.now();
             verificationToken.code = String.format("%06d", ThreadLocalRandom.current().nextInt(999999));
+
+            // TODO send email to user async using mail provider
+            System.out.println("Verification token: " + verificationToken.code);
+
             pendingEmailVerifications.put(userId, verificationToken);
             return GenericSuccessResponse.create(userId);
         }
@@ -76,15 +89,21 @@ public class AccountService {
             }
 
             VerificationToken token = pendingEmailVerifications.get(userId);
-            if (token.generationTime.isBefore(LocalDateTime.now())) {
+            if (token.expired()) {
                 return ErrorResponse.create("Email verification code expired", ErrorCodes.EMAIL_VERIFICATION_EXPIRED);
             }
 
-            account.setEmailVerified(true);
-            repository.save(account);
-            pendingEmailVerifications.remove(userId);
 
-            return GenericSuccessResponse.create(userId);
+            if (token.code.equals(verificationCode)) {
+                account.setEmailVerified(true);
+                repository.save(account);
+                pendingEmailVerifications.remove(userId);
+
+                return GenericSuccessResponse.create(userId);
+            } else {
+                return ErrorResponse.create("Email verification code incorrect", ErrorCodes.EMAIL_VERIFICATION_INCORRECT);
+
+            }
         }
         return ErrorResponse.create("Account does not exist", ErrorCodes.ACCOUNT_INVALID);
     }
@@ -113,6 +132,7 @@ public class AccountService {
         account.setId(userId);
         account.setEmail(email.toLowerCase());
         account.setPin(pin);
+        account.setEmailVerified(false);
 
         repository.save(account);
 
@@ -189,6 +209,7 @@ public class AccountService {
                     return ErrorResponse.create("New email is the same", ErrorCodes.EMAIL_SAME);
                 }
                 account.setEmail(newEmail);
+                account.setEmailVerified(false);
             } else {
                 return ErrorResponse.create("Security check failed", ErrorCodes.PIN_INVALID);
             }

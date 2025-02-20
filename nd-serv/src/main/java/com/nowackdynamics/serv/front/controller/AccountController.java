@@ -66,7 +66,7 @@ public class AccountController {
     public ResponseEntity<?> markEmailForVerification(@Validated @RequestBody MarkVerificationRequest markVerificationRequest) {
         ResponseEntity<? extends BaseResponse> response;
 
-        response = exchange.exchangeSync("/api/account/verification", markVerificationRequest);
+        response = exchange.exchangeSync("/api/account/verification/mark", markVerificationRequest);
 
         return response;
     }

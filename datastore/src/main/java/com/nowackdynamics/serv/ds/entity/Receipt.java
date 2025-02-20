@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Document(collection = "receipts")
@@ -18,5 +20,5 @@ public class Receipt {
 
     private String data;
 
-    private ArrayList<String> analyticsInfo;
+    private Map<String, Object> analyticsInfo;
 }

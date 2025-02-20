@@ -28,7 +28,7 @@ public class ReceiptService {
      * @param analyticsInfo Analytics info.
      * @return HTTP response containing receipt id if success.
      */
-    public ResponseEntity<? extends BaseResponse> handleNew(UUID receiptId, String receiptData, @Nullable ArrayList<String> analyticsInfo) {
+    public ResponseEntity<? extends BaseResponse> handleNew(UUID receiptId, String receiptData, @Nullable Map<String, Object> analyticsInfo) {
         if (repository.findById(receiptId).isPresent()) {
             return ErrorResponse.create("Receipt with specified ID already exists", ErrorCodes.RECEIPT_EXISTS);
         }
@@ -46,7 +46,7 @@ public class ReceiptService {
             Receipt receipt = new Receipt();
             receipt.setId(receiptId);
             receipt.setData(receiptData);
-            receipt.setAnalyticsInfo(Objects.requireNonNullElseGet(analyticsInfo, ArrayList::new));
+            receipt.setAnalyticsInfo(Objects.requireNonNullElseGet(analyticsInfo, HashMap::new));
 
             repository.save(receipt);
             return GenericSuccessResponse.create(receiptId);
