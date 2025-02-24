@@ -26,7 +26,8 @@ public class ErrorCodes {
     public static int EMAIL_VERIFIED                = 15; // Email is already verified
     public static int EMAIL_VERIFICATION_EXPIRED    = 16; // Email verification code has expired
     public static int EMAIL_VERIFICATION_INCORRECT  = 17; // Provided verification code is invalid
-
+    public static int EMAIL_NOT_VERIFIED            = 18; // User's email is not verified
+    public static int PIN_VERIFICATION_EXPIRED      = 19; // The PIN verification token has expired
 
     public static int UNKNOWN_GENERIC               = 99; // Generic or unknown error, cache receipt data locally(if relevant)
 }

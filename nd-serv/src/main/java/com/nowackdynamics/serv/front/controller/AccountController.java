@@ -35,6 +35,15 @@ public class AccountController {
         return response;
     }
 
+    @PostMapping("/forgotpin")
+    public ResponseEntity<?> forgotPin(@Validated @RequestBody ForgotPinRequest forgotPinRequest) {
+        ResponseEntity<? extends BaseResponse> response;
+
+        response = exchange.exchangeSync("/api/account/forgotpin", forgotPinRequest);
+
+        return response;
+    }
+
     @PostMapping("/updatepin")
     public ResponseEntity<?> updatePin(@Validated @RequestBody UpdatePinRequest updatePinRequest) {
         ResponseEntity<? extends BaseResponse> response;

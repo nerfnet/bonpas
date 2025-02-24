@@ -58,6 +58,33 @@ public class AccountController {
         );
     }
 
+    @PostMapping("/forgotpin")
+    public ResponseEntity<?> forgotPin(@Validated @RequestBody ForgotPinRequest forgotPinRequest,
+                                       @RequestHeader(value = "Authorization") String securityKey) {
+        if (!secure.checkKey(securityKey)) {
+            return ErrorResponse.create("Secure check error", ErrorCodes.SECURITY_FAILURE);
+        }
+        UUID userId = forgotPinRequest.getUserId();
+        String token = forgotPinRequest.getVerificationCode();
+        String newPin = forgotPinRequest.getNewPin();
+        boolean verify = forgotPinRequest.isVerify();
+
+
+        if(token != null) {
+            if(verify) {
+                return accountService.handleVerifyPINToken(userId, token);
+            }
+            return accountService.handleUpdatePin(
+                    userId,
+                    null,
+                    newPin,
+                    token
+            );
+        } else {
+            return accountService.handleMarkForgotPin(userId);
+        }
+    }
+
     @PostMapping("/updatepin")
     public ResponseEntity<?> updatePin(@Validated @RequestBody UpdatePinRequest updatePinRequest,
                                        @RequestHeader(value = "Authorization") String securityKey) {

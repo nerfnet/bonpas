@@ -9,12 +9,12 @@ import com.nowackdynamics.serv.framework.response.ErrorCodes;
 import com.nowackdynamics.serv.framework.response.external.ErrorResponse;
 import com.nowackdynamics.serv.framework.response.external.user.GenericSuccessResponse;
 import com.nowackdynamics.serv.framework.response.external.user.PinUpdatedResponse;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +28,7 @@ public class AccountService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
     private final ConcurrentHashMap<UUID, VerificationToken> pendingEmailVerifications = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, VerificationToken> pendingForgottenPins = new ConcurrentHashMap<>();
 
     @Autowired
     private AccountRepository repository;
@@ -38,7 +39,69 @@ public class AccountService {
     public AccountService() {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             pendingEmailVerifications.entrySet().removeIf(entry -> entry.getValue().expired());
+            pendingForgottenPins.entrySet().removeIf(entry -> entry.getValue().expired());
         }, 1, 1, TimeUnit.MINUTES);
+    }
+
+    /**
+     * Handles PIN token security checks.
+     *
+     * @param userId            The ID of the user.
+     * @param verificationToken The token to check.
+     * @return
+     */
+    public ResponseEntity<?> handleVerifyPINToken(UUID userId, String verificationToken) {
+        Optional<Account> optional = repository.findById(userId);
+
+        if (optional.isPresent()) {
+            if (!pendingForgottenPins.containsKey(userId)) {
+                return ErrorResponse.create("PIN reset not pending", ErrorCodes.UNKNOWN_GENERIC);
+            }
+
+            VerificationToken token = pendingForgottenPins.get(userId);
+            if (token.expired()) {
+                return ErrorResponse.create("PIN reset verification code expired", ErrorCodes.PIN_VERIFICATION_EXPIRED);
+            }
+
+            if (token.code.equals(verificationToken)) {
+                return GenericSuccessResponse.create(userId);
+            } else {
+                return ErrorResponse.create("PIN reset verification code expired", ErrorCodes.PIN_VERIFICATION_EXPIRED);
+            }
+        }
+        return ErrorResponse.create("Account does not exist", ErrorCodes.ACCOUNT_INVALID);
+    }
+
+    /**
+     * Generates a one-time verification code and sends it to the user's email in the event that they have forgotten their PIN.
+     *
+     * @param userId The ID of the user.
+     * @return HTTP response containing user id if success.
+     */
+    public ResponseEntity<? extends BaseResponse> handleMarkForgotPin(UUID userId) {
+        Optional<Account> optional = repository.findById(userId);
+
+        if (optional.isPresent()) {
+            Account account = optional.get();
+            if (!account.isEmailVerified()) {
+                return ErrorResponse.create("Email not verified", ErrorCodes.EMAIL_NOT_VERIFIED);
+            }
+
+            if(pendingForgottenPins.containsKey(userId)) {
+                return ErrorResponse.create("Too many requests", ErrorCodes.UNKNOWN_GENERIC);
+            }
+
+            VerificationToken verificationToken = new VerificationToken();
+            verificationToken.generationTime = LocalDateTime.now();
+            verificationToken.code = String.format("%06d", ThreadLocalRandom.current().nextInt(999999));
+
+            // TODO send email to user async using mail provider
+            System.out.println("PIN forgot token: " + verificationToken.code);
+
+            pendingForgottenPins.put(userId, verificationToken);
+            return GenericSuccessResponse.create(userId);
+        }
+        return ErrorResponse.create("Account does not exist", ErrorCodes.ACCOUNT_INVALID);
     }
 
     /**
@@ -93,7 +156,6 @@ public class AccountService {
                 return ErrorResponse.create("Email verification code expired", ErrorCodes.EMAIL_VERIFICATION_EXPIRED);
             }
 
-
             if (token.code.equals(verificationCode)) {
                 account.setEmailVerified(true);
                 repository.save(account);
@@ -102,7 +164,6 @@ public class AccountService {
                 return GenericSuccessResponse.create(userId);
             } else {
                 return ErrorResponse.create("Email verification code incorrect", ErrorCodes.EMAIL_VERIFICATION_INCORRECT);
-
             }
         }
         return ErrorResponse.create("Account does not exist", ErrorCodes.ACCOUNT_INVALID);
@@ -168,22 +229,47 @@ public class AccountService {
     /**
      * Handles the update of a user's PIN.
      *
-     * @param userId     The UUID of the user to change the PIN of.
-     * @param currentPin The current PIN of the user, used for verification.
-     * @param newPin     The new PIN to set.
+     * @param userId            The UUID of the user to change the PIN of.
+     * @param currentPin        The current PIN of the user, used for verification.
+     * @param newPin            The new PIN to set.
+     * @param verificationToken A verification token, used if the user is changing their PIN because they had forgotten it.
      * @return HTTP response containing user id if success.
      */
-    public ResponseEntity<? extends BaseResponse> handleUpdatePin(UUID userId, String currentPin, String newPin, String newSalt) {
+    public ResponseEntity<? extends BaseResponse> handleUpdatePin(UUID userId, String currentPin, String newPin, @Nullable String verificationToken) {
         Optional<Account> optional = repository.findById(userId);
         if (optional.isPresent()) {
             Account account = optional.get();
-            if (authenticate(userId, currentPin)) {
-                account.setPin(newPin);
+
+            // verify verification token if supplied
+            if (verificationToken != null && !verificationToken.isBlank() && !verificationToken.isEmpty()) {
+                if (!pendingForgottenPins.containsKey(userId)) {
+                    return ErrorResponse.create("PIN reset not pending", ErrorCodes.UNKNOWN_GENERIC);
+                }
+
+                VerificationToken token = pendingForgottenPins.get(userId);
+                if (token.expired()) {
+                    return ErrorResponse.create("PIN reset verification code expired", ErrorCodes.PIN_VERIFICATION_EXPIRED);
+                }
+
+                if (token.code.equals(verificationToken)) {
+                    pendingForgottenPins.remove(userId);
+
+                    account.setPin(newPin);
+                    repository.save(account);
+                    return PinUpdatedResponse.create(userId, newPin);
+                } else {
+                    return ErrorResponse.create("PIN reset verification code expired", ErrorCodes.PIN_VERIFICATION_EXPIRED);
+                }
             } else {
-                return ErrorResponse.create("Security check failed", ErrorCodes.PIN_INVALID);
+                // no token supplied, do regular authentication
+                if (authenticate(userId, currentPin)) {
+                    account.setPin(newPin);
+                } else {
+                    return ErrorResponse.create("Security check failed", ErrorCodes.PIN_INVALID);
+                }
+                repository.save(account);
+                return PinUpdatedResponse.create(userId, newPin);
             }
-            repository.save(account);
-            return PinUpdatedResponse.create(userId, newPin);
         }
         return ErrorResponse.create("Account not registered", ErrorCodes.ACCOUNT_INVALID);
     }
@@ -210,6 +296,7 @@ public class AccountService {
                 }
                 account.setEmail(newEmail);
                 account.setEmailVerified(false);
+                handleMarkEmailPending(userId);
             } else {
                 return ErrorResponse.create("Security check failed", ErrorCodes.PIN_INVALID);
             }

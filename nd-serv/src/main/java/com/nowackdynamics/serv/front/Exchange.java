@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -39,8 +40,9 @@ public class Exchange {
         ResponseEntity<String> jsonResponse;
         try {
             jsonResponse = restTemplate.exchange(datastoreAddress + endpoint, HttpMethod.POST, forwardingRequest, String.class);
-        } catch (Exception e) {
-            return ErrorResponse.create("Exchange error", ErrorCodes.UNKNOWN_GENERIC);
+        } catch (HttpClientErrorException e) {
+            BaseResponse response = transformResponseJson(e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode()).body(response);
         }
 
         try {
